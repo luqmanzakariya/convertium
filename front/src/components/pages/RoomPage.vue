@@ -43,6 +43,7 @@ import Breadcrumb from "../molecules/breadcrumb/Breadcrumb.vue";
 import RoomBookInfoFilter from "../molecules/filter/RoomBookInfoFilter.vue";
 import RoomCard from "../molecules/card/RoomCard.vue";
 import ModalLogin from "../organisms/modal/ModalLogin.vue";
+import { APP_ROUTE } from "../../constant/url";
 
 export default {
   name: "RoomPage",
@@ -70,19 +71,29 @@ export default {
       breadcrumbItems: [
         {
           label: "SEARCH",
-          routes: ["/", "/rooms", "/confirmation"],
+          routes: [
+            APP_ROUTE.HOME,
+            APP_ROUTE.ROOMS,
+            APP_ROUTE.CONTACT_INFORMATION,
+            APP_ROUTE.CONFIRMATION,
+          ],
         },
         {
           label: "SELECT ROOM",
-          routes: ["/rooms", "/contact", "/confirmation"],
+          routes: [
+            APP_ROUTE.HOME,
+            APP_ROUTE.ROOMS,
+            APP_ROUTE.CONTACT_INFORMATION,
+            APP_ROUTE.CONFIRMATION,
+          ],
         },
         {
           label: "CONTACT INFORMATION",
-          routes: ["/contact", "/confirmation"],
+          routes: [APP_ROUTE.CONTACT_INFORMATION, APP_ROUTE.CONFIRMATION],
         },
         {
           label: "CONFIRMATION",
-          routes: ["/confirmation"],
+          routes: [APP_ROUTE.CONFIRMATION],
         },
       ],
     };
@@ -96,11 +107,11 @@ export default {
         return;
       }
 
-      this.$router.push(`/contact?roomId=${roomId}`);
+      this.$router.push(`${APP_ROUTE.CONTACT_INFORMATION}?roomId=${roomId}`);
     },
     redirectToLogin() {
       this.showLoginModal = false;
-      this.$router.push("/login");
+      this.$router.push(`${APP_ROUTE.LOGIN}`);
     },
     handleSortChange(value) {
       this.sortOption = value;

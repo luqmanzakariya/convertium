@@ -15,6 +15,7 @@
 <script>
 import HomeTemplate from "../templates/HomeTemplate.vue";
 import BookRoomForm from "../organisms/form/BookRoomForm.vue";
+import { APP_ROUTE } from "../../constant/url";
 
 export default {
   name: "RoomSearchPages",
@@ -30,7 +31,7 @@ export default {
     async searchRooms() {
       try {
         this.$router.push({
-          path: "/rooms",
+          path: APP_ROUTE.ROOMS,
           query: {
             checkIn: this.dateCheckIn,
             checkOut: this.dateCheckOut,

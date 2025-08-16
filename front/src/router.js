@@ -6,20 +6,26 @@ import Confirmation from "./views/Confirmation.vue";
 import Login from "./views/Login.vue";
 import Register from "./views/Register.vue";
 import Dashboard from "./views/Dashboard.vue";
+import { APP_ROUTE } from "./constant/url";
 
 const routes = [
-  { path: "/", name: "RoomSearch", component: RoomSearch },
-  { path: "/rooms", name: "Rooms", component: Rooms },
+  { path: APP_ROUTE.HOME, name: "RoomSearch", component: RoomSearch },
+  { path: APP_ROUTE.ROOMS, name: "Rooms", component: Rooms },
   {
-    path: "/contact",
+    path: APP_ROUTE.CONTACT_INFORMATION,
     name: "ContactInformation",
     component: ContactInformation,
   },
-  { path: "/confirmation", name: "Confirmation", component: Confirmation },
-  { path: "/login", name: "Login", component: Login },
-  { path: "/register", name: "Register", component: Register },
   {
-    path: "/dashboard",
+    path: APP_ROUTE.CONFIRMATION,
+    name: "Confirmation",
+    component: Confirmation,
+    meta: { requiresAuth: true },
+  },
+  { path: APP_ROUTE.LOGIN, name: "Login", component: Login },
+  { path: APP_ROUTE.REGISTER, name: "Register", component: Register },
+  {
+    path: APP_ROUTE.DASHBOARD,
     name: "Dashboard",
     component: Dashboard,
     meta: { requiresAuth: true },
@@ -34,7 +40,7 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem("token");
   if (to.meta.requiresAuth && !token) {
-    next("/login");
+    next(APP_ROUTE.LOGIN);
   } else {
     next();
   }

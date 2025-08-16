@@ -2,16 +2,18 @@
   <header class="masthead">
     <nav>
       <ul>
-        <li><router-link to="/">Home</router-link></li>
+        <li><router-link :to="homeLink">Home</router-link></li>
       </ul>
     </nav>
     <nav>
       <ul>
         <li>
-          <router-link to="/login"><NavbarButton title="Login" /></router-link>
+          <router-link :to="loginLink"
+            ><NavbarButton title="Login"
+          /></router-link>
         </li>
         <li>
-          <router-link to="/register"
+          <router-link :to="registerLink"
             ><NavbarButton title="Register"
           /></router-link>
         </li>
@@ -22,10 +24,18 @@
 
 <script>
 import NavbarButton from "../../atoms/button/NavbarButton.vue";
+import { APP_ROUTE } from "../../../constant/url";
 
 export default {
   name: "Mashead",
   components: { NavbarButton },
+  data() {
+    return {
+      homeLink: APP_ROUTE.HOME,
+      loginLink: APP_ROUTE.LOGIN,
+      registerLink: APP_ROUTE.REGISTER,
+    };
+  },
 };
 </script>
 
