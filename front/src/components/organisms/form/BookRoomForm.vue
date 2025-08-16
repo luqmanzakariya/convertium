@@ -13,22 +13,15 @@
         </div>
       </div>
 
-      <div class="date-picker">
-        <input
-          type="text"
-          :value="formattedDate"
-          readonly
-          @click="openDatePicker"
-          class="visible-date"
-        />
-        <input
-          type="date"
-          :value="date"
-          @change="updateDate"
-          ref="dateInput"
-          class="native-date"
-        />
-      </div>
+      <DatePicker
+        :modelValue="dateCheckIn"
+        @update:modelValue="$emit('update:dateCheckIn', $event)"
+      />
+
+      <DatePicker
+        :modelValue="dateCheckOut"
+        @update:modelValue="$emit('update:dateCheckOut', $event)"
+      />
     </div>
 
     <SubmitButton @click="$emit('searchRooms')" title="SEARCH FOR ROOMS" />
@@ -37,31 +30,12 @@
 
 <script>
 import SubmitButton from "../../atoms/button/SubmitButton.vue";
+import DatePicker from "../../atoms/date/DatePicker.vue";
 
 export default {
   name: "BookRoomForm",
-  components: { SubmitButton },
-  props: ["guests", "date"],
-  computed: {
-    formattedDate() {
-      if (!this.date) return "Select date";
-      const options = {
-        weekday: "short",
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      };
-      return new Date(this.date).toLocaleDateString("en-GB", options);
-    },
-  },
-  methods: {
-    updateDate(event) {
-      this.$emit("update:date", event.target.value);
-    },
-    openDatePicker() {
-      this.$refs.dateInput.showPicker();
-    },
-  },
+  components: { SubmitButton, DatePicker },
+  props: ["guests", "dateCheckIn", "dateCheckOut"],
 };
 </script>
 
@@ -84,33 +58,6 @@ export default {
 
 .guests {
   width: 50%;
-}
-
-.date-picker {
-  width: 50%;
-  position: relative;
-}
-
-.date-picker .visible-date {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 16px;
-  background: #f9f9f9;
-  height: 39px;
-  box-sizing: border-box;
-  cursor: pointer;
-}
-
-.date-picker .native-date {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
-  pointer-events: none;
 }
 
 .input-with-icon {

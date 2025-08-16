@@ -4,7 +4,8 @@
       <h2>BOOK A ROOM</h2>
       <BookRoomForm
         v-model:guests="guests"
-        v-model:date="date"
+        v-model:dateCheckIn="dateCheckIn"
+        v-model:dateCheckOut="dateCheckOut"
         @searchRooms="searchRooms"
       />
     </div>
@@ -21,12 +22,24 @@ export default {
   data() {
     return {
       guests: 2,
-      date: new Date().toISOString().substr(0, 10),
+      dateCheckIn: new Date().toISOString().substr(0, 10),
+      dateCheckOut: new Date().toISOString().substr(0, 10),
     };
   },
   methods: {
-    searchRooms() {
-      console.log(`guest: ${this.guests}, date: ${this.date}`);
+    async searchRooms() {
+      try {
+        this.$router.push({
+          path: "/rooms",
+          query: {
+            checkIn: this.dateCheckIn,
+            checkOut: this.dateCheckOut,
+            guests: this.guests,
+          },
+        });
+      } catch (err) {
+        alert("Error searching rooms");
+      }
     },
   },
 };
