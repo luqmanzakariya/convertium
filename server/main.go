@@ -13,7 +13,7 @@ import (
 
 type User struct {
 	ID       int    `json:"id"`
-	Name		 string `json:"name"`
+	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
@@ -21,8 +21,10 @@ type User struct {
 type Room struct {
 	ID          int     `json:"id"`
 	Name        string  `json:"name"`
+	Subtitle    string  `json:"subtitle"`
 	Description string  `json:"description"`
 	Price       float64 `json:"price"`
+	ImageUrl    string  `json:"imageUrl,omitempty"`
 }
 
 type Booking struct {
@@ -39,9 +41,12 @@ type Booking struct {
 var (
 	users = []User{}
 	rooms = []Room{
-		{1, "Standard Room", "Basic room with bed", 100.0},
-		{2, "Deluxe Room", "Room with view", 150.0},
-		{3, "Suite", "Luxury suite", 200.0},
+		{1, "Standard Room", "Basic room with bed", `Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.`, 100.0, "https://storage.googleapis.com/images.luqmanzakariya.com/others/basic-room-with-bed.webp"},
+		{2, "Deluxe Room", "Room with bamboo view", `Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.`, 150.0, "https://storage.googleapis.com/images.luqmanzakariya.com/others/room-with-bamboo.webp"},
+		{3, "Suite", "Luxury suite", `Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.`, 200.0, "https://storage.googleapis.com/images.luqmanzakariya.com/others/room-suite.webp"},
+		{4, "Executive Suite", "Spacious suite with work area and premium amenities", `Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.`, 250.0, "https://storage.googleapis.com/images.luqmanzakariya.com/others/room-executive.webp"},
+		{5, "Family Room", "Large room with two queen beds, suitable for families", `Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.`, 180.0, "https://storage.googleapis.com/images.luqmanzakariya.com/others/room-family.webp"},
+		{6, "Ocean View Room", "Room with balcony overlooking the ocean", `Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.`, 220.0, "https://storage.googleapis.com/images.luqmanzakariya.com/others/room-ocean-view.webp"},
 	}
 	bookings      = []Booking{}
 	nextUserID    = 1

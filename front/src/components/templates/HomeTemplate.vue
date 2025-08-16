@@ -22,6 +22,7 @@
     min-height: 100dvh;
     text-align: center;
     padding: 0px 0px 0px;
+    height: 100%;
   }
   .header {
     width: 100%;
