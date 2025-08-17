@@ -21,7 +21,9 @@ export default {
   components: { HomeTemplate, LoginForm },
   methods: {
     handleLoginSuccess() {
-      this.$router.push(APP_ROUTE.HOME);
+      this.$router.push({
+        path: APP_ROUTE.HOME,
+      });
     },
   },
 };
@@ -30,6 +32,7 @@ export default {
 <style scoped>
 .pages-section {
   margin: 20px 0;
+  padding: 0px 0px 40px;
 }
 
 .register-link {

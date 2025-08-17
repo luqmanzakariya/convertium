@@ -36,14 +36,14 @@
 </template>
 
 <script>
-import axios from "axios";
+import apiService from "../../service/api";
 import HomeTemplate from "../templates/HomeTemplate.vue";
 import BookRoomForm from "../organisms/form/BookRoomForm.vue";
 import Breadcrumb from "../molecules/breadcrumb/Breadcrumb.vue";
 import RoomBookInfoFilter from "../molecules/filter/RoomBookInfoFilter.vue";
 import RoomCard from "../molecules/card/RoomCard.vue";
 import ModalLogin from "../organisms/modal/ModalLogin.vue";
-import { APP_ROUTE } from "../../constant/url";
+import { APP_ROUTE, API_ROUTE } from "../../constant/url";
 
 export default {
   name: "RoomPage",
@@ -132,7 +132,7 @@ export default {
   },
   async mounted() {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/rooms`, {
+      const res = await apiService.get(`${API_ROUTE.ROOMS}`, {
         params: {
           checkIn: this.$route.query.checkIn,
           checkOut: this.$route.query.checkOut,

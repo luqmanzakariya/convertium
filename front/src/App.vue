@@ -9,13 +9,6 @@ export default {
       isLoggedIn: !!localStorage.getItem("token"),
     };
   },
-  methods: {
-    logout() {
-      localStorage.removeItem("token");
-      this.isLoggedIn = false;
-      this.$router.push("/");
-    },
-  },
 };
 </script>
 

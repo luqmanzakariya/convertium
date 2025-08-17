@@ -7,16 +7,28 @@
     </nav>
     <nav>
       <ul>
-        <li>
-          <router-link :to="loginLink"
-            ><NavbarButton title="Login"
-          /></router-link>
-        </li>
-        <li>
-          <router-link :to="registerLink"
-            ><NavbarButton title="Register"
-          /></router-link>
-        </li>
+        <template v-if="isAuthenticated">
+          <li>
+            <router-link :to="dashboardLink"
+              ><NavbarButton title="Dashboard"
+            /></router-link>
+          </li>
+          <li>
+            <NavbarButton title="Logout" @click="logout" />
+          </li>
+        </template>
+        <template v-else>
+          <li>
+            <router-link :to="loginLink"
+              ><NavbarButton title="Login"
+            /></router-link>
+          </li>
+          <li>
+            <router-link :to="registerLink"
+              ><NavbarButton title="Register"
+            /></router-link>
+          </li>
+        </template>
       </ul>
     </nav>
   </header>
@@ -34,7 +46,28 @@ export default {
       homeLink: APP_ROUTE.HOME,
       loginLink: APP_ROUTE.LOGIN,
       registerLink: APP_ROUTE.REGISTER,
+      dashboardLink: APP_ROUTE.DASHBOARD,
+      isAuthenticated: false,
     };
+  },
+  created() {
+    this.checkAuthStatus();
+    // Listen for auth changes from other components
+    window.addEventListener("storage", this.checkAuthStatus);
+  },
+  beforeUnmount() {
+    // Clean up event listener
+    window.removeEventListener("storage", this.checkAuthStatus);
+  },
+  methods: {
+    checkAuthStatus() {
+      this.isAuthenticated = !!localStorage.getItem("token");
+    },
+    logout() {
+      localStorage.removeItem("token");
+      this.isLoggedIn = false;
+      this.checkAuthStatus();
+    },
   },
 };
 </script>

@@ -8,7 +8,7 @@ export const APP_ROUTE = {
   DASHBOARD: "/dashboard",
 };
 
-export const API_URL = {
+export const API_ROUTE = {
   LOGIN: "/login",
   REGISTER: "/register",
   ROOMS: "/rooms",

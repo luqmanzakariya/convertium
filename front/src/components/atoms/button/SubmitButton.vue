@@ -18,6 +18,8 @@ button {
   cursor: pointer;
   width: 100%;
   border-radius: 4px;
+  max-width: 400px;
+  margin-top: 12px;
 }
 
 button:hover {

@@ -1,6 +1,16 @@
 <template>
-  <div class="login-form">
-    <form @submit.prevent="handleSubmit" class="form">
+  <div class="register-form">
+    <form @submit.prevent="handleSubmit">
+      <div class="form-group">
+        <input
+          type="text"
+          id="name"
+          v-model="form.name"
+          required
+          placeholder="Enter your full name"
+        />
+      </div>
+
       <div class="form-group">
         <input
           type="email"
@@ -10,6 +20,7 @@
           placeholder="Enter your email"
         />
       </div>
+
       <div class="form-group">
         <input
           type="password"
@@ -17,45 +28,79 @@
           v-model="form.password"
           required
           placeholder="Enter your password"
-          minlength="4"
+          minlength="8"
         />
       </div>
-      <button type="submit" class="submit-button" :disabled="loading">
-        {{ loading ? "Logging in..." : "Login" }}
+
+      <div class="form-group" style="margin-bottom: 0px">
+        <input
+          type="password"
+          id="password_confirmation"
+          v-model="form.password_confirmation"
+          required
+          placeholder="Confirm your password"
+          minlength="8"
+        />
+      </div>
+      <div
+        v-if="form.password && form.password_confirmation && !passwordsMatch"
+        class="validation-error"
+      >
+        Passwords do not match
+      </div>
+
+      <button
+        type="submit"
+        class="submit-button"
+        :disabled="loading || !passwordsMatch"
+      >
+        {{ loading ? "Creating account..." : "Register" }}
       </button>
+
       <div v-if="error" class="error-message">{{ error }}</div>
+
+      <div class="login-link">
+        Already have an account?
+        <router-link to="/login">Login here</router-link>
+      </div>
     </form>
   </div>
 </template>
 
 <script>
 import apiService from "../../../service/api";
-import { APP_ROUTE, API_ROUTE } from "../../../constant/url";
+import { API_ROUTE } from "../../../constant/url";
 
 export default {
-  name: "LoginForm",
+  name: "RegisterForm",
   data() {
     return {
       form: {
+        name: "",
         email: "",
         password: "",
+        password_confirmation: "",
       },
       loading: false,
       error: "",
     };
   },
+  computed: {
+    passwordsMatch() {
+      return this.form.password === this.form.password_confirmation;
+    },
+  },
   methods: {
     async handleSubmit() {
+      if (!this.passwordsMatch) return;
+
       this.loading = true;
       this.error = "";
 
       try {
         const response = await apiService.post(
-          `${API_ROUTE.LOGIN}`,
-          {
-            email: this.form.email,
-            password: this.form.password,
-          },
+          `${API_ROUTE.REGISTER}`,
+          this.form,
           {
             headers: {
               "Content-Type": "application/json",
@@ -63,26 +108,12 @@ export default {
           }
         );
 
-        const token = response.data.token;
-
-        if (token) {
-          localStorage.setItem("token", token);
-          this.$emit("success");
-        } else {
-          throw new Error("No token received");
-        }
+        this.$emit("success");
       } catch (err) {
-        if (err?.response?.status === 401) {
-          this.error = "Invalid email or password.";
-        } else if (err?.response?.status === 403) {
-          this.error =
-            "Your account is not activated. Please check your email.";
-        } else {
-          this.error =
-            err.response?.data?.message ||
-            err.message ||
-            "Login failed. Please try again.";
-        }
+        this.error =
+          err.response?.data?.message ||
+          err.response?.data?.error ||
+          "Registration failed. Please try again.";
       } finally {
         this.loading = false;
       }
@@ -92,17 +123,13 @@ export default {
 </script>
 
 <style scoped>
-.login-form {
+.register-form {
   max-width: 400px;
   margin: 0 auto;
   padding: 2rem;
   background: #fff;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.form {
-  width: 100%;
 }
 
 .form-group {
@@ -130,6 +157,13 @@ input:focus {
   border-color: #000;
 }
 
+.validation-error {
+  color: #e74c3c;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  text-align: left;
+}
+
 .submit-button {
   width: 100%;
   padding: 0.75rem;
@@ -141,6 +175,7 @@ input:focus {
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.3s;
+  margin-top: 1.5rem;
 }
 
 .submit-button:hover {
@@ -156,5 +191,22 @@ input:focus {
   margin-top: 1rem;
   color: #e74c3c;
   text-align: center;
+}
+
+.login-link {
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  color: #666;
+  text-align: center;
+}
+
+.login-link a {
+  color: #000;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.login-link a:hover {
+  text-decoration: underline;
 }
 </style>

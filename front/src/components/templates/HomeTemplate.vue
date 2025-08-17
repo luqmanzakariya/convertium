@@ -19,9 +19,10 @@
 
 <style scoped>
   .container {
-    min-height: 100dvh;
+    min-height: calc(100dvh - 40px);
     text-align: center;
     padding: 0px 0px 0px;
+    margin-bottom: 40px;
     height: 100%;
   }
   .header {
@@ -31,5 +32,15 @@
   .banner-img {
     width: 100%;
     height: 400px;
+  }
+
+  @media (max-width: 768px) {
+    .container {
+      min-height: 100dvh;
+      margin-bottom: 0;
+    }
+    .banner-img {
+      height: 200px;
+    }
   }
 </style>
