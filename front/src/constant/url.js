@@ -12,4 +12,5 @@ export const API_ROUTE = {
   LOGIN: "/login",
   REGISTER: "/register",
   ROOMS: "/rooms",
+  BOOKING: "/bookings",
 };

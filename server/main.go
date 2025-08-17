@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math/rand"
 	"net/http"
 	"strconv"
 	"sync"
@@ -28,14 +29,20 @@ type Room struct {
 }
 
 type Booking struct {
-	ID        int       `json:"id"`
-	UserID    int       `json:"userId"`
-	RoomID    int       `json:"roomId"`
-	CheckIn   time.Time `json:"checkIn"`
-	CheckOut  time.Time `json:"checkOut"`
-	Contact   string    `json:"contact"`
-	Confirmed bool      `json:"confirmed"`
-	Cancelled bool      `json:"cancelled"`
+	ID               int       `json:"id"`
+	UserID           int       `json:"userId"`
+	RoomID           int       `json:"roomId"`
+	CheckIn          time.Time `json:"checkIn"`
+	CheckOut         time.Time `json:"checkOut"`
+	Title            string    `json:"title"`
+	ContactName      string    `json:"contactName"`
+	ContactEmail     string    `json:"contactEmail"`
+	NumberOfGuests   int       `json:"numberOfGuests"`
+	TotalPrice       float64   `json:"totalPrice"`
+	Tax              float64   `json:"tax"`
+	ConfirmationCode string    `json:"confirmationCode"`
+	Confirmed        bool      `json:"confirmed"`
+	Cancelled        bool      `json:"cancelled"`
 }
 
 var (
@@ -68,6 +75,7 @@ func main() {
 	e.POST("/login", login)
 
 	e.GET("/rooms", searchRooms)
+	e.GET("/rooms/:id", getRoomByID)
 
 	// Restricted group
 	r := e.Group("/bookings")
@@ -75,6 +83,7 @@ func main() {
 
 	r.POST("", createBooking)
 	r.GET("", listBookings)
+	r.GET("/:id", getBookingByID)
 	r.DELETE("/:id", cancelBooking)
 
 	e.Logger.Fatal(e.Start(":8080"))
@@ -125,6 +134,17 @@ func login(c echo.Context) error {
 	return c.JSON(http.StatusUnauthorized, echo.Map{"error": "Invalid credentials"})
 }
 
+func generateConfirmationCode() string {
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	const length = 10
+	rand.Seed(time.Now().UnixNano())
+	result := make([]byte, length)
+	for i := range result {
+		result[i] = charset[rand.Intn(len(charset))]
+	}
+	return string(result)
+}
+
 func searchRooms(c echo.Context) error {
 	checkInStr := c.QueryParam("checkIn")
 	checkOutStr := c.QueryParam("checkOut")
@@ -150,36 +170,121 @@ func searchRooms(c echo.Context) error {
 	return c.JSON(http.StatusOK, available)
 }
 
+func getRoomByID(c echo.Context) error {
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{"error": "Invalid room ID"})
+	}
+
+	mutex.Lock()
+	defer mutex.Unlock()
+	for _, room := range rooms {
+		if room.ID == id {
+			return c.JSON(http.StatusOK, room)
+		}
+	}
+	return c.JSON(http.StatusNotFound, echo.Map{"error": "Room not found"})
+}
+
+func getBookingByID(c echo.Context) error {
+	userID := c.Get("userID").(int)
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{"error": "Invalid booking ID"})
+	}
+
+	mutex.Lock()
+	defer mutex.Unlock()
+	for _, booking := range bookings {
+		if booking.ID == id && booking.UserID == userID {
+			return c.JSON(http.StatusOK, booking)
+		}
+	}
+	return c.JSON(http.StatusNotFound, echo.Map{"error": "Booking not found or unauthorized"})
+}
+
 func createBooking(c echo.Context) error {
 	userID := c.Get("userID").(int)
 	var req struct {
-		RoomID   int    `json:"roomId"`
-		CheckIn  string `json:"checkIn"`
-		CheckOut string `json:"checkOut"`
-		Contact  string `json:"contact"`
+		RoomID         int    `json:"roomId"`
+		CheckIn        string `json:"checkIn"`
+		CheckOut       string `json:"checkOut"`
+		Title          string `json:"title"`
+		ContactName    string `json:"contactName"`
+		ContactEmail   string `json:"contactEmail"`
+		NumberOfGuests int    `json:"numberOfGuests"`
 	}
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{"error": err.Error()})
 	}
-	checkIn, _ := time.Parse("2006-01-02", req.CheckIn)
-	checkOut, _ := time.Parse("2006-01-02", req.CheckOut)
+
+	// Validate title
+	if req.Title != "Mr" && req.Title != "Ms" && req.Title != "Mrs" {
+		return c.JSON(http.StatusBadRequest, echo.Map{"error": "Invalid title. Must be Mr, Ms, or Mrs"})
+	}
+
+	// Validate number of guests
+	if req.NumberOfGuests < 1 {
+		return c.JSON(http.StatusBadRequest, echo.Map{"error": "Number of guests must be at least 1"})
+	}
+
+	checkIn, err := time.Parse("2006-01-02", req.CheckIn)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{"error": "Invalid check-in date"})
+	}
+	checkOut, err := time.Parse("2006-01-02", req.CheckOut)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, echo.Map{"error": "Invalid check-out date"})
+	}
 
 	mutex.Lock()
 	defer mutex.Unlock()
+
+	// Find room to get price
+	var roomPrice float64
+	for _, room := range rooms {
+		if room.ID == req.RoomID {
+			roomPrice = room.Price
+			break
+		}
+	}
+	if roomPrice == 0 {
+		return c.JSON(http.StatusBadRequest, echo.Map{"error": "Room not found"})
+	}
+
+	// Check for booking conflicts
 	for _, b := range bookings {
 		if b.RoomID == req.RoomID && !b.Cancelled && b.Confirmed &&
 			!(checkOut.Before(b.CheckIn) || checkIn.After(b.CheckOut)) {
 			return c.JSON(http.StatusBadRequest, echo.Map{"error": "Room unavailable"})
 		}
 	}
+
+	// Calculate total price: (room price * nights) + 9% tax
+	nights := checkOut.Sub(checkIn).Hours() / 24
+	if nights < 1 {
+		return c.JSON(http.StatusBadRequest, echo.Map{"error": "Check-out must be after check-in"})
+	}
+	basePrice := roomPrice * nights
+	tax := basePrice * 0.09
+	totalPrice := basePrice + tax
+
 	booking := Booking{
-		ID:        nextBookingID,
-		UserID:    userID,
-		RoomID:    req.RoomID,
-		CheckIn:   checkIn,
-		CheckOut:  checkOut,
-		Contact:   req.Contact,
-		Confirmed: true,
+		ID:               nextBookingID,
+		UserID:           userID,
+		RoomID:           req.RoomID,
+		CheckIn:          checkIn,
+		CheckOut:         checkOut,
+		Title:            req.Title,
+		ContactName:      req.ContactName,
+		ContactEmail:     req.ContactEmail,
+		NumberOfGuests:   req.NumberOfGuests,
+		TotalPrice:       totalPrice,
+		Tax:              tax,
+		ConfirmationCode: generateConfirmationCode(),
+		Confirmed:        true,
 	}
 	bookings = append(bookings, booking)
 	nextBookingID++
