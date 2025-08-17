@@ -107,7 +107,9 @@ export default {
         return;
       }
 
-      this.$router.push(`${APP_ROUTE.CONTACT_INFORMATION}?roomId=${roomId}`);
+      this.$router.push(
+        `${APP_ROUTE.CONTACT_INFORMATION}?roomId=${roomId}?checkIn=${this.checkIn}&checkOut=${this.checkOut}&guests=${this.guests}`
+      );
     },
     redirectToLogin() {
       this.showLoginModal = false;

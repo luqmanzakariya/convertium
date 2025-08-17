@@ -65,8 +65,10 @@ export default {
     },
     logout() {
       localStorage.removeItem("token");
-      this.isLoggedIn = false;
-      this.checkAuthStatus();
+      this.isAuthenticated = false;
+      this.$router.push(APP_ROUTE.HOME);
+
+      window.dispatchEvent(new Event("storage"));
     },
   },
 };
