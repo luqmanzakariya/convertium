@@ -3,6 +3,7 @@ package main
 import (
 	"math/rand"
 	"net/http"
+	"os"
 	"strconv"
 	"sync"
 	"time"
@@ -85,6 +86,11 @@ func main() {
 	r.GET("", listBookings)
 	r.GET("/:id", getBookingByID)
 	r.DELETE("/:id", cancelBooking)
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080" // fallback for local dev
+	}
 
 	e.Logger.Fatal(e.Start(":8080"))
 }
