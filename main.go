@@ -92,7 +92,7 @@ func main() {
 		port = "8080" // fallback for local dev
 	}
 
-	e.Logger.Fatal(e.Start(":8080"))
+	e.Logger.Fatal(e.Start(":" + port))
 }
 
 func register(c echo.Context) error {
